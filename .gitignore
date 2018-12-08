@@ -6,8 +6,8 @@ gradle/
 local.properties
 build.gradle
 AndroidManifest.xml
-res/drawable/
-res/values/
+res/drawable/*
+res/values/*
 
 # These are copied in by build.py
 assets/app/

@@ -1,14 +1,10 @@
 ## Project Layout
 
 * jni -- the C part of the bootstrap, ndk-build builds it
-
-* obj -- where the files built from jni/ go
+ * obj -- where the intermediate files built from jni/ go
+ * libs -- where the final files build from jni/ go
 
 * src -- the Java part of the bootstrap
-
-* res -- icons and such
-
-* gen -- automatically generated Java code, mostly the resources
 
 * python-install -- libpython and all of the python modules
 

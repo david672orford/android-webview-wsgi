@@ -11,15 +11,10 @@ import java.io.File;
 
 import android.app.*;
 import android.content.*;
-import android.view.*;
-import android.view.ViewGroup;
 import android.app.Activity;
 import android.util.Log;
 import android.widget.Toast;
 import android.os.Bundle;
-
-import android.widget.AbsoluteLayout;
-import android.view.ViewGroup.LayoutParams;
 
 import android.webkit.WebViewClient;
 import android.webkit.WebView;
@@ -55,7 +50,6 @@ public class PythonActivity extends Activity {
 		mWebSettings.setAllowUniversalAccessFromFileURLs(true);
         mWebView.loadUrl("file:///android_asset/bootstrap.html");
 
-        mWebView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         mWebView.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -65,9 +59,8 @@ public class PythonActivity extends Activity {
                 }
             });
 
-    	ViewGroup mLayout = new AbsoluteLayout(this);
-        mLayout.addView(mWebView);
-        setContentView(mLayout);
+		/* We do not need a layout. The webview is the view. */
+		setContentView(mWebView);
 
         /* start.c will chdir() to ANDROID_FILESDIR
            assets/bootstrap.py uses ANDROID_APKDIR refer to files zipped into the APK
