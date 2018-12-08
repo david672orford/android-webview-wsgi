@@ -1,4 +1,28 @@
+# gradlew will download these
+gradle/
+.gradle/
+
+# This are built from templates by build.py
 local.properties
-build
-obj
-gen
+build.gradle
+AndroidManifest.xml
+res/drawable/
+res/values/
+
+# These are copied in by build.py
+assets/app/
+assets/python/
+
+# ndk-build creates these
+obj/
+libs/armeabi/
+
+# Gradle creates this
+build/
+
+# We never want to store files of these types
+*.pyc
+*.pyo
+*.o
+*.a
+
