@@ -1,7 +1,34 @@
 ## Purpose
 
 This project can be used to pack a Python WSGI web server into an Android app along
-with an Android webview to browser it.
+with an Android webview to browser it. It is an improved version of an Android
+project produced with Python for Android with the "webview" bootstrap.
+
+The Android packages produced by Python for Android (as of version 0.6) pack all
+of the Python code into a large tar file which is unpacked into the applications
+file space when it is first run. This slows down the first start and wastes about
+15MB of space. Apps packages by this project run directly from the apk file using
+the zipimport module to load code and the zipfile module to load (read-only) data
+files.
+
+This project addresses an unsolved problem in the Python for Android webview
+bootstrap. This is that the webview must be connected to the web server running
+in the Python thread, but at the time the webview opens the server probably is
+not started yet and its port number is unknown. Currently this is handled by
+having the person running the packaging process pick a port number which hopefully
+will be free. A special thread is started which repeatedly tries to connect to the
+server until it appears. When the server appears, the webview is instructed to
+connect to it. Until then, it displays a "loading" page.
+
+In this project we solve the problem by having the web server accept whatever
+free port the operating system assigns it (i.e., by not calling bind().) Once the
+listening port has been created, the Python bootstrap code calls back into the
+Java code to command the webview to navigate to the URL of the web server.
+
+The bootstrap code in this project does not run a main.py script as the
+"webview" bootstrap does. Instead it imports a WSGI application supplied
+by the user and dispatches requests to it. (Which means that it runs them
+as a web server with WSGI support would.)
 
 ## Building an APK
 
