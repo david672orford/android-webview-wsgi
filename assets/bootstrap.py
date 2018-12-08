@@ -82,16 +82,16 @@ def apk_stat(path):
             raise IOError(errno.ENOENT, "No such file or directory", path)
 
         statbuf = os.stat_result((
-            stat.S_IFREG | 0644,        # st_mode
-            0,                            # st_ino
-            0,                            # st_dev
-            1,                            # st_nlink
-            0,                            # st_uid
-            0,                            # st_gid
-            fi.file_size,                # st_size
-            0,                            # st_atime
-            0,                            # st_mtime
-            0                            # st_ctime
+            stat.S_IFREG | 0644,       # st_mode
+            0,                         # st_ino
+            0,                         # st_dev
+            1,                         # st_nlink
+            0,                         # st_uid
+            0,                         # st_gid
+            fi.file_size,              # st_size
+            0,                         # st_atime
+            0,                         # st_mtime
+            0                          # st_ctime
             ))
         #print "statbuf:", statbuf
         return statbuf
