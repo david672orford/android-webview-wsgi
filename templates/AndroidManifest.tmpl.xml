@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="{{ args.package }}"
+      android:versionCode="{{ args.numeric_version }}"
+      android:versionName="{{ args.version }}"
+      android:installLocation="auto">
+
+    <uses-sdk android:minSdkVersion="{{ args.min_sdk_version }}" android:targetSdkVersion="{{ args.sdk_version }}" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <application
+			android:label="@string/app_name"
+            android:icon="@drawable/icon"
+            android:allowBackup="true"
+            android:theme="@android:style/Theme.NoTitleBar{% if not args.window %}.Fullscreen{% endif %}"
+            android:hardwareAccelerated="true"
+			android:extractNativeLibs="true"
+			>
+
+        <activity android:name="org.kivy.android.PythonActivity"
+                  android:label="@string/app_name"
+                  android:configChanges="keyboardHidden|orientation{% if args.min_sdk_version >= 13 %}|screenSize{% endif %}"
+                  android:screenOrientation="{{ args.orientation }}"
+                  >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter></activity>
+        
+    </application>
+
+</manifest>

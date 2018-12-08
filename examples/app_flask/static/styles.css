@@ -1,0 +1,15 @@
+BODY {
+	font-size: 24pt;
+	}
+H1 {
+	font-weight: bold;
+	font-size: 300%;
+	}
+IMG {
+	float: left;
+	width: 1em;
+	height: 1em;
+	}
+LI {
+	margin-bottom: 1em;
+	}

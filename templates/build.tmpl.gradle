@@ -1,0 +1,57 @@
+buildscript {
+   repositories {
+      google()
+      jcenter()
+   }
+   dependencies {
+      classpath 'com.android.tools.build:gradle:3.2.1'
+   }
+}
+
+allprojects {
+   repositories {
+      google()
+      jcenter()
+   }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    // Which version of the SDK should we use to compile the project?
+    // Use the latest to get the best warnings.
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        // --package
+        applicationId "{{ args.package }}"
+
+        // Versions number of our app as text and as an integer
+        versionName "{{ args.version }}"
+        versionCode {{ args.numeric_version }}
+
+        // Warn if we use features introduced after this version
+        minSdkVersion {{ args.min_sdk_version }}
+
+        // Do not apply API behavior changes after this version
+        targetSdkVersion {{ args.sdk_version }}
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    // Prevent the exclusion of asset files with names beginning with underscore.
+    aaptOptions {
+        ignoreAssetsPattern "*~"
+    }
+
+}
+
