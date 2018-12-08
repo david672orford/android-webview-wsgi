@@ -31,6 +31,14 @@ by the user and dispatches requests to it. (Which means that it runs them
 as a web server with WSGI support would.) This allows the bootstrap code to
 properly control the start up process.
 
+## Results
+
+A bare-bones hello-world app created from the project has a 1.7MB APK file.
+Installed it takes under 5MB of device storage. Startup time on a Lenova
+Yoga Tab running Android 4.4 is one second.
+
+A hello-world in Flask has a 2.5MB APK file. Startup time is about two seconds.
+
 ## The Bootstrap Process
 
 1. PythonActivity creates a webview and points it at assets/bootstrap.html
