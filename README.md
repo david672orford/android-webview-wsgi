@@ -118,43 +118,45 @@ to pack the sample apps.
 This project was produce by modifying one built by Python For Android.
 Here is a summary of the changes:
 
+* The Ant build.xml file has been replaced with Gradle and build.gradle.
 * jni/src/Android.mk
   * Corrected paths to python-install
   * Link in libpython2.7.
 * jni/src/start.c
   * Removed service support for now
   * Moved the Python bootstrap code into assets/bootstrap.py
-  * Renamed the "androidembed" package to "android"
+  * Renamed the "androidembed" package to the more informative "android"
   * Added android.loadUrl
 * src/
   * Following features removed for now:
     * some kind of support for in-app purchases
-      * support for running a second Python interpreter as a service
-      * support for wakelock
+    * support for running a second Python interpreter as a service
+    * support for wakelock
   * Added android.loadUrl
-    * Dropped unfinished code in \_load.html which waits for the WSGI app to start
-    * Dropped pinger which did the same thing (it worked, but with android.loadUrl it is unnecessary)
+  * Dropped pinger since android.loadUrl renders it it unnecessary
   * Pause JavaScript timers when app in background
   * Fixed location.replace() from JavaScript
   * Dropped the use of a layout since we have only one widget
   * Dropped numerous unnecessary imports
 * assets/bootstrap.py
-    * The Python bootstrap code has been moved from start.c to here
-    * Now overrides open() and os.stat() so that apps can run out of the apk
-    * The server port is no longer hard-coded
-    * Other apps on the same device can no longer use the server
+  * The Python bootstrap code has been moved from start.c to here
+  * Now overrides open() and os.stat() so that apps can run out of the apk
+  * The server port is no longer hard-coded
+  * Other apps on the same device can no longer use the server
   * Rather than running main.py, it imports app.app and runs it as a WSGI app
 * build.py
-    * removed --private option since this tar unpacking code has been removed
-    * removed --port option	since our bootstrap selects it automatically
-  * removed --whitelist and --blacklist options in favor of --modules
-  * removed --wakelock option (not supported in our stripped-down bootstrap)
-    * removed --add-source option (not supported in our Gradle file)
-  * removed --permission
-  * removed --meta-data
-  * added --wsgi-app option
-  * added --modules option
-* The Ant build.xml file has been replaced with Gradle and build.gradle.
+  * Removed --private option in favor of --wsgi-app
+  * Removed --whitelist and --blacklist options in favor of --modules
+  * Removed --port option since our bootstrap selects it automatically
+  * Removed options which this stripped-down bootstrap does not support:
+    * --wakelock
+    * --meta-data
+    * --add-source
+    * --add-jar
+    * --intent-filters
+    * --meta-data
+    * --with-billing
+  * Added --no-compile-pyo
 
 ## Site Modules
 
@@ -168,7 +170,7 @@ the following additional modules were selected:
 The following Python modules have been manuall added
 to python-install/lib/python2.7/site-packages/:
 
-* tlslite-ng (with loading of verifierdb commented out in api.py)
+* tlslite-ng (with loading of verifierdb, POP, etc. commented out in api.py)
 * ecdsa (on which tlslite-ng depends)
 * six (on which tlslite-ng also depends)
 

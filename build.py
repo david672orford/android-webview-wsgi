@@ -6,6 +6,7 @@ from os import makedirs, listdir, unlink
 import subprocess
 import shutil
 import sys
+from distutils.version import LooseVersion
 from fnmatch import fnmatch
 import jinja2
 import re
@@ -139,6 +140,20 @@ WHITELIST_ADDONS = {
         _LWPCookieJar.py
         _MozillaCookieJar.py
         """),
+    'pil': parse_pattern_list("""
+        site-packages/PIL*
+        """),
+    'tlslite': parse_pattern_list("""
+        site-packages/tlslite/*
+        site-packages/ecdsa/*
+        site-packages/six.py
+		platform.py
+		asyncore.py
+        """),
+	'etree': parse_pattern_list("""
+		xml/__init__.py
+		xml/etree/*
+		"""),
     }
 
 # We tried blacklisting everything we did not want, but eventually decided that
@@ -413,7 +428,7 @@ def make_package(args):
             with open(re.sub(r"\.so$", ".py", fn), "w") as fh:
                 fh.write("import bootstrap_so\nbootstrap_so.dynload(__name__,__file__,__loader__)\n")
 
-    if not args.no_pyo:
+    if not args.no_compile_pyo:
         py_to_pyo(pydest)
 
     print("Copying app...")
@@ -422,7 +437,7 @@ def make_package(args):
         shutil.rmtree(appdest)
     copy_files(args.wsgi_app, appdest)
 
-    if not args.no_pyo:
+    if not args.no_compile_pyo:
         py_to_pyo(appdest)
 
     print("Copying images...")
@@ -444,24 +459,45 @@ def make_package(args):
             version_code += int(i)
         args.numeric_version = str(version_code)
 
+    # Find the SDK directory and target API
+    with open('project.properties', 'r') as fileh:
+        target = fileh.read().strip()
+    android_api = target.split('-')[1]
+    with open('local.properties', 'r') as fileh:
+        sdk_dir = fileh.read().strip()
+    sdk_dir = sdk_dir[8:]
+
+    # Try to build with the newest available build tools
+    build_tools_versions = listdir(join(sdk_dir, 'build-tools'))
+    build_tools_versions = sorted(build_tools_versions,
+                                  key=LooseVersion)
+    build_tools_version = build_tools_versions[-1]
     render_template(
         'AndroidManifest.tmpl.xml',
         'AndroidManifest.xml',
         args=args,
+        android_api=android_api,
         )
 
     render_template(
         'build.tmpl.gradle',
         'build.gradle',
         args=args,
-        versioned_name=versioned_name)
+        android_api=android_api,
+        build_tools_version=build_tools_version)
 
     render_template(
         'strings.tmpl.xml',
         'res/values/strings.xml',
         args=args)
 
+    render_template(
+        'bootstrap.tmpl.html',
+        'assets/bootstrap.html',
+        args=args)
+
 def parse_args(args=None):
+    default_android_api = 12
     import argparse
     ap = argparse.ArgumentParser(description='''\
 Package a Python application for Android.
@@ -470,6 +506,8 @@ For this to work, Java and Ant need to be in your path, as does the
 tools directory of the Android SDK.
 ''')
 
+    ap.add_argument('--private', dest='private',
+                    help='Not supported. Use --wsgi-app= instead.'),
     ap.add_argument('--wsgi-app', dest='wsgi_app',
                     help='the WSGI app files files',
                     required=True)
@@ -490,29 +528,39 @@ tools directory of the Android SDK.
                           'same number of groups of numbers as previous '
                           'versions.'),
                     required=True)
-    ap.add_argument('--orientation', dest='orientation', default='sensor',
+    ap.add_argument('--orientation', dest='orientation', default='unspecified',
                     help=('The orientation that the game will display in. '
-                          'Usually one of "landscape", "portrait" or '
-                          '"sensor"'))
+                          'Usually one of "landscape", "portrait", '
+                          '"sensor", or "unspecified"'))
     ap.add_argument('--icon', dest='icon',
                     help='A png file to use as the icon for the application.')
+    ap.add_argument('--permission', dest='permissions', action='append',
+                    help='The permissions to give this app.', nargs='+')
+    ap.add_argument('--meta-data', dest='meta_data', action='append',
+                    help='Custom key=value to add in application metadata')
     ap.add_argument('--presplash', dest='presplash',
                     help=('A jpeg file to use as a screen while the '
                           'application is loading.'))
+    ap.add_argument('--presplash-color', dest='presplash_color', default='#000000',
+                    help=('A string to set the loading screen background color. '
+                          'Supported formats are: #RRGGBB #AARRGGBB or color names '
+                          'like red, green, blue, etc.'))
+    ap.add_argument('--wakelock', dest='wakelock', action='store_true',
+                    help=('Indicate if the application needs the device '
+                          'to stay on'))
     ap.add_argument('--window', dest='window', action='store_false',
                     help='Indicate if the application will be windowed')
-    ap.add_argument('--sdk', dest='sdk_version', default=27, type=int,
-                    help=('Code is compatible with this version and lower.'
-                          'Defaults to 27.'))
+    ap.add_argument('--sdk', dest='sdk_version', default=-1, type=int,
+                    help=('Deprecated argument, does nothing'))
     ap.add_argument('--minsdk', dest='min_sdk_version',
-                    default=19, type=int,
+                    default=default_android_api, type=int,
                     help=('Warn if code uses features introduced after this version.'
                           'Defaults to 19.'))
     ap.add_argument('--modules', dest='modules',
                     default='wsgiref',
                     help=('Extra Python modules to include (with their dependencies)'))
-    ap.add_argument('--no-pyo', dest='no_pyo', action='store_false',
-                    help=('Refrain from compiling .py files to .pyo.'
+    ap.add_argument('--no-compile-pyo', dest='no_compile_pyo', action='store_true',
+                    help=('Do not optimize .py files to .pyo.'
                           '(For the sake of stack backtraces.)'))
                     
 
@@ -521,8 +569,15 @@ tools directory of the Android SDK.
     if args.name and args.name[0] == '"' and args.name[-1] == '"':
         args.name = args.name[1:-1]
 
-    if args.sdk_version == -1:
-        args.sdk_version = args.min_sdk_version
+    if args.sdk_version != -1:
+        print('WARNING: Received a --sdk argument, but this argument is '
+              'deprecated and does nothing.')
+
+    if args.permissions is None:
+        args.permissions = []
+    elif args.permissions:
+        if isinstance(args.permissions[0], list):
+            args.permissions = [p for perm in args.permissions for p in perm]
 
     return args
 

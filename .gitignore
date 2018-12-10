@@ -2,22 +2,25 @@
 gradle/
 .gradle/
 
-# This are built from templates by build.py
+# This points to the Android SDK
 local.properties
+
+# This are built from templates by build.py
 build.gradle
 AndroidManifest.xml
 res/drawable/*
 res/values/*
+assets/bootstrap.html
 
-# These are copied in by build.py
+# These are created by build.py.
 assets/app/
 assets/python/
 
-# ndk-build creates these
+# These are created by ndk-build.
 obj/
 libs/armeabi/
 
-# Gradle creates this
+# Created by Gradle.
 build/
 
 # We never want to store files of these types
