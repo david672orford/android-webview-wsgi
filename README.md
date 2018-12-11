@@ -150,11 +150,8 @@ Here is a summary of the changes:
   * Removed --port option since our bootstrap selects it automatically
   * Removed options which this stripped-down bootstrap does not support:
     * --wakelock
-    * --meta-data
     * --add-source
     * --add-jar
-    * --intent-filters
-    * --meta-data
     * --with-billing
   * Added --no-compile-pyo
 

@@ -459,6 +459,10 @@ def make_package(args):
             version_code += int(i)
         args.numeric_version = str(version_code)
 
+    if args.intent_filters:
+        with open(args.intent_filters) as fd:
+            args.intent_filters = fd.read()
+
     # Find the SDK directory and target API
     with open('project.properties', 'r') as fileh:
         target = fileh.read().strip()
@@ -533,21 +537,18 @@ tools directory of the Android SDK.
                           'Usually one of "landscape", "portrait", '
                           '"sensor", or "unspecified"'))
     ap.add_argument('--icon', dest='icon',
-                    help='A png file to use as the icon for the application.')
+                    help='A PNG file to use as the icon for the application.')
     ap.add_argument('--permission', dest='permissions', action='append',
                     help='The permissions to give this app.', nargs='+')
     ap.add_argument('--meta-data', dest='meta_data', action='append',
                     help='Custom key=value to add in application metadata')
     ap.add_argument('--presplash', dest='presplash',
-                    help=('A jpeg file to use as a screen while the '
+                    help=('A JPEG or PNG file to use as a splash screen while the '
                           'application is loading.'))
     ap.add_argument('--presplash-color', dest='presplash_color', default='#000000',
                     help=('A string to set the loading screen background color. '
                           'Supported formats are: #RRGGBB #AARRGGBB or color names '
                           'like red, green, blue, etc.'))
-    ap.add_argument('--wakelock', dest='wakelock', action='store_true',
-                    help=('Indicate if the application needs the device '
-                          'to stay on'))
     ap.add_argument('--window', dest='window', action='store_false',
                     help='Indicate if the application will be windowed')
     ap.add_argument('--sdk', dest='sdk_version', default=-1, type=int,
@@ -556,6 +557,12 @@ tools directory of the Android SDK.
                     default=default_android_api, type=int,
                     help=('Warn if code uses features introduced after this version.'
                           'Defaults to 19.'))
+    ap.add_argument('--intent-filters', dest='intent_filters',
+                    help=('Add intent-filters xml rules to the '
+                          'AndroidManifest.xml file. The argument is a '
+                          'filename containing xml. The filename should be '
+                          'located relative to the python-for-android '
+                          'directory'))
     ap.add_argument('--modules', dest='modules',
                     default='wsgiref',
                     help=('Extra Python modules to include (with their dependencies)'))
@@ -563,15 +570,11 @@ tools directory of the Android SDK.
                     help=('Do not optimize .py files to .pyo.'
                           '(For the sake of stack backtraces.)'))
                     
-
     args = ap.parse_args(args)
 
+    # If the shell failed to remove quotes from the app name, remove them now.
     if args.name and args.name[0] == '"' and args.name[-1] == '"':
         args.name = args.name[1:-1]
-
-    if args.sdk_version != -1:
-        print('WARNING: Received a --sdk argument, but this argument is '
-              'deprecated and does nothing.')
 
     if args.permissions is None:
         args.permissions = []
@@ -584,5 +587,14 @@ tools directory of the Android SDK.
 
 if __name__ == "__main__":
     args = parse_args()
+
+	if args.private:
+		print('ERROR: --private not supported, use --wsgi-app instead.')
+		sys.exit(1)
+
+    if args.sdk_version != -1:
+        print('WARNING: Received a --sdk argument, but this argument is '
+              'deprecated and does nothing.')
+
     make_package(args)
 
