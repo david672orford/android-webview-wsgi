@@ -74,7 +74,7 @@ A hello-world in Flask has a 2.5MB APK file. Startup time is about two seconds.
 
 ## Building an APK
 
-Building an APK from this project currently requires three steps:
+Building an APK from this project currently requires four steps:
 
 1. Configure the project using build.py
  * Has no --port option since the system now picks the port at app startup.
@@ -144,6 +144,10 @@ Here is a summary of the changes:
   * The server port is no longer hard-coded
   * Other apps on the same device can no longer use the server
   * Rather than running main.py, it imports app.app and runs it as a WSGI app
+* assets/bootstrap_so.py
+  The zipimport module cannot load .so files, so we create .py stubs next
+  to them. The stubs use this module to extract the .so files into the
+  application cache directory.
 * build.py
   * Removed --private option in favor of --wsgi-app
   * Removed --whitelist and --blacklist options in favor of --modules
@@ -164,7 +168,7 @@ the following additional modules were selected:
 * werkzeug
 * sqlite3
 
-The following Python modules have been manuall added
+The following Python modules have been manualy added
 to python-install/lib/python2.7/site-packages/:
 
 * tlslite-ng (with loading of verifierdb, POP, etc. commented out in api.py)

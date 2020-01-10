@@ -116,8 +116,9 @@ except Exception:
     print "=============================================================="
     sys.exit(1)
 
-# Put a wrapper around the request to reject requests from
-# other apps running on the same device.
+# Put a security wrapper around the request which will reject requests
+# from other apps running on the same device. It checks name of the app
+# which the Android Webview puts in an X-Requested-With header.
 package_name = os.environ['ANDROID_PACKAGE_NAME']
 def app_wrapper(environ, start_response):
     if environ.get('HTTP_X_REQUESTED_WITH') != package_name:

@@ -12,10 +12,11 @@ if false
 	strip libs/armeabi/*.so
 	fi
 
+# Assemble the assets and generate app configuration files
 #./build.py --wsgi-app=examples/app_basic --modules=wsgiref --package com.example.test --name Test --version 0.1
 #./build.py --wsgi-app=examples/app_werkzeug --modules=werkzeug,jinja2 --package com.example.test --name Test --version 0.1
 #./build.py --wsgi-app=examples/app_flask --modules=werkzeug,jinja2,flask --package com.example.test --name Test --version 0.1
-./build.py --wsgi-app=../parallel_reader/app --modules=werkzeug,jinja2,pil,tlslite,etree --package com.example.test --name Test --version 0.1
+./build.py --wsgi-app=../Parallel_Reader/app --modules=werkzeug,jinja2,pil,tlslite,etree --package com.example.test --name Test --version 0.1
 
 # Build the apk
 ./gradlew assembleDebug

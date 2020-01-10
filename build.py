@@ -450,14 +450,7 @@ def make_package(args):
 
     print("Rendering templates...")
 
-    versioned_name = (args.name.replace(' ', '').replace('\'', '') + '-' + args.version)
-
-    version_code = 0
-    if not args.numeric_version:
-        for i in args.version.split('.'):
-            version_code *= 100
-            version_code += int(i)
-        args.numeric_version = str(version_code)
+    #versioned_name = (args.name.replace(' ', '').replace('\'', '') + '-' + args.version)
 
     if args.intent_filters:
         with open(args.intent_filters) as fd:
@@ -576,11 +569,21 @@ tools directory of the Android SDK.
     if args.name and args.name[0] == '"' and args.name[-1] == '"':
         args.name = args.name[1:-1]
 
+    version_code = 0
+    if not args.numeric_version:
+        for i in args.version.split('.'):
+            version_code *= 100
+            version_code += int(i)
+        args.numeric_version = str(version_code)
+
     if args.permissions is None:
         args.permissions = []
     elif args.permissions:
         if isinstance(args.permissions[0], list):
             args.permissions = [p for perm in args.permissions for p in perm]
+
+    if args.meta_data is None:
+        args.meta_data = []
 
     return args
 
@@ -588,9 +591,9 @@ tools directory of the Android SDK.
 if __name__ == "__main__":
     args = parse_args()
 
-	if args.private:
-		print('ERROR: --private not supported, use --wsgi-app instead.')
-		sys.exit(1)
+    if args.private:
+        print('ERROR: --private not supported, use --wsgi-app instead.')
+        sys.exit(1)
 
     if args.sdk_version != -1:
         print('WARNING: Received a --sdk argument, but this argument is '
